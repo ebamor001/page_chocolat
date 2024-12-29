@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Aide  </title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        h4 {
+            color: #666;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .cart-details {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .cart-details ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-details li {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: none;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+        }
+
+        .total-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    
+</head>
+<body>
+
+    <div class="container">
+        <h2> Comment on peut vous aider? </h2>
+
+        
+
+        <!-- Formulaire de Contact -->
+        <form id="contactForm" action="process_msg.php" method="post" onsubmit="submitOrder(event)">
+            <div class="form-group">
+                <input class="w3-input" type="text" id="name" placeholder="Nom" required name="name">
+                <p id="nameError" class="error-message"></p>
+            </div>
+            <div class="form-group">
+                <input class="w3-input" type="email" id="email" placeholder="Email" required name="email">
+                <p id="emailError" class="error-message"></p>
+            </div>
+            <div class="form-group">
+                <input class="w3-input" type="text" id="phone" placeholder="Téléphone (ex : 06XXXXXXXX)" required name="phone">
+                <p id="phoneError" class="error-message"></p>
+            </div>
+            <div class="form-group">
+                <input class="w3-input" type="text" id="address" placeholder="Adresse à Bordeaux" required name="address">
+                <p id="addressError" class="error-message"></p>
+            </div>
+            <div class="form-group">
+                <textarea class="w3-input" id="message" placeholder="Message" required name="message"></textarea>
+                <p id="messageError" class="error-message"></p>
+            </div>
+            <button type="submit"> envoyer mon message </button>
+        </form>
+
+        <!-- Bouton Retour -->
+        <button class="back-button" onclick="window.location.href = 'index.html'">Retour à la page principale</button>
+    </div>
+</body>
+</html>  

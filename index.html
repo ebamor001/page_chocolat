@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Kristina façon Dubaï</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inconsolata">
+    <style>
+        body, html {
+            height: 100%;
+            font-family: "Inconsolata", sans-serif;
+        }
+
+        /* Header and background */
+        .bgimg {
+            background-position: center;
+            background-size: cover;
+            background-image: url("banner.JPEG");
+            min-height: 75%;
+        }
+
+        /* Navigation */
+        .w3-bar-block .w3-bar-item { padding: 20px; }
+        .w3-top {
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        /* Products Section */
+        .w3-main {
+            max-width: 1200px;
+            margin: 100px auto;
+        }
+
+        .w3-row-padding {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .product-item {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 23%;
+            margin-bottom: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-item img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .product-item h3 {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+
+        .product-item p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .product-item button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .product-item button:hover {
+            background-color: #555;
+        }
+
+        /* Cart Section */
+        .cart-section {
+            display: none;
+            padding: 32px;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #cartList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #cartList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #cartList li button {
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        #cartList li button:hover {
+            background-color: #888;
+        }
+
+        #cartTotal {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .w3-button.w3-black {
+            background-color: #333;
+        }
+
+        .w3-button.w3-red {
+            background-color: #d9534f;
+        }
+    </style>
+    <script>
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+        function addToCart(productName, price) {
+            const existingProduct = cart.find(item => item.product === productName); 
+            
+            if (existingProduct) {
+                existingProduct.quantity++;
+            } else {
+                cart.push({ product: productName, price: price, quantity: 1 });
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartList = document.getElementById("cartList");
+            cartList.innerHTML = "";
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                const li = document.createElement("li");
+                li.textContent = `${item.product} - ${item.price} € x ${item.quantity}`;
+
+                const removeButton = document.createElement("button");
+                removeButton.textContent = "Retirer";
+                removeButton.onclick = () => removeFromCart(index);
+
+                const decreaseButton = document.createElement("button");
+                decreaseButton.textContent = "-";
+                decreaseButton.onclick = () => decreaseQuantity(index);
+
+                const increaseButton = document.createElement("button");
+                increaseButton.textContent = "+";
+                increaseButton.onclick = () => increaseQuantity(index);
+
+                li.appendChild(decreaseButton);
+                li.appendChild(increaseButton);
+                li.appendChild(removeButton);
+                
+                cartList.appendChild(li);
+
+                total += item.price * item.quantity;
+            });
+
+            document.getElementById("cartTotal").textContent = `Total : ${total} €`;
+            document.querySelector(".cart-section").style.display = "block";
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCart();
+        }
+
+        function decreaseQuantity(index) {
+            if (cart[index].quantity > 1) {
+                cart[index].quantity--;
+            } else {
+                cart.splice(index, 1);
+            }
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCart();
+        }
+
+        function increaseQuantity(index) {
+            cart[index].quantity++;
+            localStorage.setItem("cart", JSON.stringify(cart));
+            updateCart();
+        }
+
+        function confirmOrder() {
+            localStorage.setItem("cart", JSON.stringify(cart));
+            window.location.href = "commande.html";
+        }
+
+        function clearCart() {
+            cart = [];
+            localStorage.removeItem("cart");
+            updateCart();
+            document.querySelector(".cart-section").style.display = "none";
+        }
+    </script>
+</head>
+
+<body onload="updateCart()">
+    <!-- Navigation Links -->
+    <div class="w3-top">
+        <div class="w3-row w3-padding w3-black">
+            <div class="w3-col s3"><a href="#home" class="w3-button w3-block w3-black">ACCUEIL</a></div>
+            <div class="w3-col s3"><a href="#about" class="w3-button w3-block w3-black">À PROPOS</a></div>
+            <div class="w3-col s3"><a href="#products" class="w3-button w3-block w3-black">PRODUITS</a></div>
+            <div class="w3-col s3"><a href="contact.html" class="w3-button w3-block w3-black">CONTACT</a></div>
+        </div>
+    </div>
+
+    <!-- Header with background image -->
+    <header class="bgimg w3-display-container w3-grayscale-min" id="home">
+        <div class="w3-display-middle w3-center">
+            <span class="w3-text-white" style="font-size:90px">Kristina<br>Chocolats façon Dubaï</span>
+        </div>
+    </header>
+
+
+    <!-- À propos Section -->
+    <div class="w3-container w3-padding-64 w3-light-grey" id="about">
+        <div class="w3-content" style="max-width:800px">
+            <h2 class="w3-center">À PROPOS DE NOUS</h2>
+            <p class="w3-center w3-large">Un voyage culinaire entre élégance et raffinement</p>
+            <div class="w3-row w3-padding-32">
+                <div class="w3-col m6 w3-center">
+                    <img src="about.jpg" alt="À propos" style="width:80%; border-radius:15px;">
+                </div>
+                <div class="w3-col m6">
+                    <p>
+                        Chez <strong>Kristina façon Dubaï</strong>, nous vous invitons à découvrir l'alliance parfaite entre
+                        le chocolat d'exception et les saveurs envoûtantes du Moyen-Orient. Nos créations uniques, 
+                        comme le chocolat fourré à la crème de pistache ou le fondant à la noisette grillée, sont 
+                        conçues pour ravir vos papilles et enrichir vos moments de plaisir.
+                    </p>
+                    <p>
+                        Inspirés par la culture et l'élégance de Dubaï, nous mettons un point d'honneur à utiliser 
+                        des ingrédients de la plus haute qualité, afin de vous offrir une expérience gustative inoubliable.
+                    </p>
+                    <p>
+                        Plongez dans notre univers et laissez-vous séduire par notre savoir-faire artisanal.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="w3-main w3-content w3-padding" id="products">
+        <div class="w3-content" style="max-width:1200px">
+            <h5 class="w3-center w3-padding-48"><span class="w3-tag w3-wide">NOS PRODUITS</span></h5>
+            <div class="w3-row-padding">
+                <!-- Product Item Example -->
+                <div class="product-item">
+                    <img src="0.jpg" alt="Chocolat noir">
+                    <h3>Chocolat Noir</h3>
+                    <p>Intense et raffiné.</p>
+                    <p>Prix : 8,50 €</p>
+                    <button onclick="addToCart('Chocolat Noir', 8.50)">Ajouter au panier</button>
+                </div>
+                <div class="product-item">
+                    <img src="1.jpg" alt="Chocolat blanc">
+                    <h3>Chocolat Blanc</h3>
+                    <p>Douceur et délicatesse.</p>
+                    <p>Prix : 9,00 €</p>
+                    <button onclick="addToCart('Chocolat Blanc', 9.00)">Ajouter au panier</button>
+                </div>
+                <div class="product-item">
+                    <img src="2.jpg" alt="Chocolat noisette">
+                    <h3>Chocolat Noisette</h3>
+                    <p>Intensément crémeux.</p>
+                    <p>Prix : 8,50 €</p>
+                    <button onclick="addToCart('Chocolat Noisette', 8.50)">Ajouter au panier</button>
+                </div>
+                <div class="product-item">
+                    <img src="3.jpg" alt="Chocolat caramel">
+                    <h3>Chocolat Caramel</h3>
+                    <p>Doux et fondant.</p>
+                    <p>Prix : 9,00 €</p>
+                    <button onclick="addToCart('Chocolat Caramel', 9.00)">Ajouter au panier</button>
+                </div>
+                <!--2emelignes-->
+                <div class="w3-row-padding">
+                    <div class="product-item">
+                        <img src="4.jpg" alt="Chocolat noir">
+                        <h3>Chocolat Noir</h3>
+                        <p>Intense et raffiné.</p>
+                        <p>Prix : 8,50 €</p>
+                        <button onclick="addToCart('Chocolat Noir', 8.50)">Ajouter au panier</button>
+                    </div>
+                    <div class="product-item">
+                        <img src="5.jpg" alt="Chocolat blanc">
+                        <h3>Chocolat Blanc</h3>
+                        <p>Douceur et délicatesse.</p>
+                        <p>Prix : 9,00 €</p>
+                        <button onclick="addToCart('Chocolat Blanc', 9.00)">Ajouter au panier</button>
+                    </div>
+                    <div class="product-item">
+                        <img src="6.jpg" alt="Chocolat noisette">
+                        <h3>Chocolat Noisette</h3>
+                        <p>Intensément crémeux.</p>
+                        <p>Prix : 8,50 €</p>
+                        <button onclick="addToCart('Chocolat Noisette', 8.50)">Ajouter au panier</button>
+                    </div>
+                    <div class="product-item">
+                        <img src="7.jpg" alt="Chocolat caramel">
+                        <h3>Chocolat Caramel</h3>
+                        <p>Doux et fondant.</p>
+                        <p>Prix : 9,00 €</p>
+                        <button onclick="addToCart('Chocolat Caramel', 9.00)">Ajouter au panier</button>
+                    </div>
+                    <!--3eme ligne-->
+                    <div class="product-item">
+                        <img src="8.jpg" alt="Chocolat noisette">
+                        <h3>Chocolat Noisette</h3>
+                        <p>Intensément crémeux.</p>
+                        <p>Prix : 8,50 €</p>
+                        <button onclick="addToCart('Chocolat Noisette', 8.50)">Ajouter au panier</button>
+                    </div>
+                    <div class="product-item">
+                        <img src="9.jpg" alt="Chocolat caramel">
+                        <h3>Chocolat Caramel</h3>
+                        <p>Doux et fondant.</p>
+                        <p>Prix : 9,00 €</p>
+                        <button onclick="addToCart('Chocolat Caramel', 9.00)">Ajouter au panier</button>
+                    </div>          
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Section -->
+    <div class="w3-container w3-padding-64 w3-large cart-section">
+        <div class="w3-content" style="max-width:700px">
+            <h5 class="w3-center w3-padding-48"><span class="w3-tag w3-wide">PANIER</span></h5>
+            <ul id="cartList" class="w3-ul w3-border"></ul>
+            <p id="cartTotal" class="w3-right-align w3-padding-16"></p>
+            <button class="w3-button w3-black w3-block" onclick="confirmOrder()">Passer à la commande</button>
+            <button class="w3-button w3-red w3-block" onclick="clearCart()">Vider le panier</button>
+        </div>
+    </div>
+
+
+
+    <!--contact-->
+
+    <div class="w3-container w3-padding-64 w3-light-grey" id="about">
+        <div class="w3-content" style="max-width:800px">
+            <h2 class="w3-center"><a href="contact.html" > Contact </a></h2>
+            <p class="w3-center w3-large"> Questions ou demandes spécifiques? </p>
+            <div class="w3-row w3-padding-32">
+            
+                    <p>
+                        Si vous avez des interrogations ou des besoins particuliers pour vos modèles de chocolats, n'hésitez pas à nous contacter.
+                        Notre équipe est à votre disposition pour répondre à vos questions et créer des chocolats sur mesure qui correspondent parfaitement
+                        à vos attentes.
+                        Nous serions ravis de collaborer avec vous pour transformer vos idées en douceurs uniques.
+                        cliquez sur contact ou bien envoyer un email directement à : <strong> thelady33000@gmail.com </strong>
+                        
+                    </p>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="w3-center w3-light-grey w3-padding-48 w3-large">
+        <p>&copy; 2024 ChocoDelight. Tous droits réservés.</p>
+    </footer>
+</body>
+</html>

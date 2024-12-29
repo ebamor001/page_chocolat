@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de Commande</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .cart-details {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .cart-details ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .total-price {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .paypal-button-container {
+            margin-top: 20px;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .payment-message {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id="></script>
+    <script>
+        function fillCartDetails() {
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let cartDetails = "";
+            let total = 0;
+
+            cart.forEach(item => {
+                cartDetails += `<li>${item.product} - ${item.price} € (Quantité: ${item.quantity || 1})</li>`;
+                total += item.price * (item.quantity || 1);
+            });
+            // Mettre à jour l'affichage du panier et du total
+            document.getElementById("cartDetails").innerHTML = cartDetails;
+            document.getElementById("cartTotal").innerHTML = `Total : ${total.toFixed(2)} €`;
+
+            initializePayPalButton(total.toFixed(2));
+        }
+        function submitOrder(event) {
+            event.preventDefault(); // Empêche le comportement par défaut de soumission du formulaire
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const address = document.getElementById("address").value.trim();
+            const message = document.getElementById("message").value.trim();
+
+            // Regex pour valider chaque champ
+            const nameRegex = /^[a-zA-Z\s]+$/;
+            const phoneRegex = /^0[6-7]\d{8}$/;
+
+            if (!nameRegex.test(name)) {
+                alert("Veuillez entrer un nom valide (lettres uniquement).");
+                return false;
+            }
+            if (!phoneRegex.test(phone)) {
+                alert("Veuillez entrer un numéro de téléphone valide (commence par 06 ou 07, suivi de 8 chiffres).");
+                return false;
+            }
+
+            if (email === "") {
+                alert("Veuillez entrer une adresse email valide.");
+                return false;
+            }
+
+            if (address === "") {
+                alert("Veuillez entrer une adresse valide.");
+                return false;
+            }
+
+
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const cart_data = document.getElementById("cart_data");
+            cart_data.value = JSON.stringify(cart);  // Remplir le champ caché avec le panier
+
+            document.getElementById("contactForm").submit();  // Soumettre le formulaire
+        }
+
+        function handlePayment() {
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
+            const paypalButtonContainer = document.getElementById("paypal-button-container");
+
+            // Ajouter l'état de paiement dans le formulaire
+            const etat_payment = selectedMethod.value;
+            document.getElementById("etat_paiement").value = etat_payment;  // Remplir le champ caché pour l'état de paiement
+            
+            
+            paypalButtonContainer.classList.add("hidden"); // Hide PayPal button initially
+       
+            switch (selectedMethod.value) {
+                
+                case "paypal/comptebancaire":
+                    paypalButtonContainer.classList.remove("hidden"); // Show PayPal button
+                    break;
+                default:  
+                    submitOrder(event);
+                break ;
+            } 
+
+                    
+        }
+
+        function initializePayPalButton(totalPrice) {
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: totalPrice
+                            }
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        alert('Paiement effectué avec succès par ' + details.payer.name.given_name);
+                    });
+                },
+                onError: function(err) {
+                    console.error('Erreur PayPal : ', err);
+                    alert('Une erreur est survenue lors du paiement.');
+                }
+            }).render('#paypal-button-container');
+        }
+
+    </script>
+</head>
+
+
+
+<body onload="fillCartDetails()">
+    <div class="container">
+        <h2>Confirmation de votre commande</h2>
+
+        <div class="cart-details">
+            <h4>Panier</h4>
+            <ul id="cartDetails"></ul>
+            <p id="cartTotal" class="total-price"></p>
+        </div>
+
+        <!-- Contact Form -->
+        <form id="contactForm" action="process_order.php" method="post">
+            <div class="form-group">
+                <label for="name">Nom :</label>
+                <input class="w3-input" type="text" id="name" placeholder="Nom (lettres uniquement)" required name="name" pattern="^[a-zA-Z\s]+$" title="Le nom ne doit contenir que des lettres et des espaces.">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email :</label>
+                <input class="w3-input" type="email" id="email" placeholder="Email valide" required name="email">
+            </div>
+
+
+            <div class="form-group">
+                <label for="phone">Téléphone :</label>
+                <input class="w3-input" type="text" id="phone" placeholder="Téléphone (ex : 07XXXXXXXX)" required name="phone" pattern="^0[6-7]\d{8}$" title="Le numéro doit commencer par 06 ou 07, suivi de 8 chiffres.">
+            </div>
+
+
+            <div class="form-group">
+                <label for="address">Adresse :</label>
+                <input class="w3-input" type="text" id="address" placeholder="Adresse complète" required name="address">
+            </div>
+
+
+            <div class="form-group">
+                <label for="message">Message :</label>
+                <textarea class="w3-input" id="message" placeholder="Message" required name="message"></textarea>
+            </div>
+
+            <!-- Champ caché pour les données du panier -->
+            <input type="hidden" id="cart_data" name="cart_data">
+            <input type="hidden" id="etat_paiement" name="etat_paiement">
+
+            <!-- Forme de paiement -->
+            <div class="container">
+                <h2>Choisissez votre méthode de paiement</h2>
+                <form id="paymentForm">
+                    <div class="payment-option">
+                        <input type="radio" id="surPlace" name="paymentMethod" value="sur place">
+                        <label for="surPlace">Paiement sur place</label>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" id="paylib" name="paymentMethod" value="paylib">
+                        <label for="paylib">Paylib</label>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" id="virement" name="paymentMethod" value="virement">
+                        <label for="virement">Virement bancaire</label>
+                    </div>
+                    <div class="payment-option">
+                        <input type="radio" id="paypal" name="paymentMethod" value="paypal/comptebancaire">
+                        <label for="paypal">PayPal / Compte bancaire</label>
+                    </div>
+
+                    <button type="button" class="button" onclick="handlePayment()">Confirmer</button>
+                </form>
+                
+                <div id="paypal-button-container" class="paypal-button-container hidden"></div>
+            </div>
+        </form>
+
+        <!-- Back Button -->
+        <button class="back-button" onclick="window.location.href = 'index.html'">Retour à la page principale</button>
+    </div>
+
+</body>
+</html>
+
+                    
+
+
+     
